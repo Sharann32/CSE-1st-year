@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Form Validation Example</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 24px;
+      max-width: 600px;
+      margin: 0 auto;
+      background: #f7f9fc;
+      color: #222;
+    }
+    form { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+    .field { margin-bottom: 14px; }
+    label { display:block; margin-bottom:6px; font-weight:600; }
+    input[type="text"], input[type="email"], input[type="number"] {
+      width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; box-sizing:border-box;
+    }
+    .hint { font-size:13px; color:#6b7280; margin-top:4px; }
+    .error { color:#b91c1c; font-size:13px; margin-top:6px; display:none; }
+    .valid { color:#065f46; font-size:13px; margin-top:6px; display:none; }
+    input.invalid { border-color:#f87171; background:#fff5f5; }
+    input.valid { border-color:#34d399; background:#f0fff4; }
+    button { padding:10px 16px; border:0; border-radius:6px; background:#2563eb; color:#fff; font-weight:600; cursor:pointer; }
+    .small { font-size:13px; color:#374151; margin-top:8px; }
+  </style>
+</head>
+<body>
+
+  <h2>Student Info — Validation Example</h2>
+
+  <form id="studentForm" novalidate>
+    <!-- Name -->
+    <div class="field">
+      <label for="name">Full name</label>
+      <input id="name" name="name" type="text"
+             placeholder="e.g. Sharan Teja"
+             required
+             pattern="^[A-Za-z\s]{2,}$"
+             title="Only letters and spaces, minimum 2 characters">
+      <div class="hint">Only letters and spaces (min 2 characters)</div>
+      <div id="nameError" class="error">Please enter a valid name (letters and spaces only).</div>
+      <div id="nameOk" class="valid">Name looks good.</div>
+    </div>
+
+    <!-- Mobile -->
+    <div class="field">
+      <label for="mobile">Mobile number</label>
+      <input id="mobile" name="mobile" type="text"
+             inputmode="numeric"
+             placeholder="10-digit mobile (e.g. 9876543210)"
+             required
+             pattern="^[6-9][0-9]{9}$"
+             title="10 digits, starts with 6-9">
+      <div class="hint">10 digits. (For India: starts with 6-9)</div>
+      <div id="mobileError" class="error">Enter a valid 10-digit mobile number (starts with 6-9).</div>
+      <div id="mobileOk" class="valid">Mobile number looks good.</div>
+    </div>
+
+    <!-- CGPA -->
+    <div class="field">
+      <label for="cgpa">CGPA</label>
+      <input id="cgpa" name="cgpa" type="number"
+             step="0.01" min="0" max="10"
+             placeholder="e.g. 9.75"
+             required>
+      <div class="hint">Enter CGPA between 0.00 and 10.00 (two decimals allowed)</div>
+      <div id="cgpaError" class="error">CGPA must be a number between 0.00 and 10.00.</div>
+      <div id="cgpaOk" class="valid">CGPA looks valid.</div>
+    </div>
+
+    <!-- Email -->
+    <div class="field">
+      <label for="email">Email address</label>
+      <input id="email" name="email" type="email"
+             placeholder="e.g. name@example.com" required>
+      <div class="hint">Enter a valid email address</div>
+      <div id="emailError" class="error">Please enter a valid email address.</div>
+      <div id="emailOk" class="valid">Email looks good.</div>
+    </div>
+
+    <button type="submit">Submit</button>
+    <div id="submitMsg" class="small"></div>
+  </form>
+
+  <script>
+    // Grab elements
+    const form = document.getElementById('studentForm');
+    const nameInput = document.getElementById('name');
+    const mobileInput = document.getElementById('mobile');
+    const cgpaInput = document.getElementById('cgpa');
+    const emailInput = document.getElementById('email');
+
+    // error / ok nodes
+    const nameError = document.getElementById('nameError');
+    const mobileError = document.getElementById('mobileError');
+    const cgpaError = document.getElementById('cgpaError');
+    const emailError = document.getElementById('emailError');
+
+    const nameOk = document.getElementById('nameOk');
+    const mobileOk = document.getElementById('mobileOk');
+    const cgpaOk = document.getElementById('cgpaOk');
+    const emailOk = document.getElementById('emailOk');
+
+    const submitMsg = document.getElementById('submitMsg');
+
+    // helper functions
+    function setValid(input, okNode, errorNode) {
+      input.classList.remove('invalid');
+      input.classList.add('valid');
+      okNode.style.display = 'block';
+      errorNode.style.display = 'none';
+    }
+    function setInvalid(input, okNode, errorNode, message) {
+      input.classList.remove('valid');
+      input.classList.add('invalid');
+      okNode.style.display = 'none';
+      errorNode.style.display = 'block';
+      if (message) errorNode.textContent = message;
+    }
+
+    // individual validators
+    function validateName() {
+      const val = nameInput.value.trim();
+      const re = /^[A-Za-z\s]{2,}$/;
+      if (!val) { setInvalid(nameInput, nameOk, nameError, "Name is required."); return false; }
+      if (!re.test(val)) { setInvalid(nameInput, nameOk, nameError, "Only letters and spaces allowed (min 2 chars)."); return false; }
+      setValid(nameInput, nameOk, nameError); return true;
+    }
+
+    function validateMobile() {
+      const val = mobileInput.value.trim();
+      const re = /^[6-9][0-9]{9}$/;
+      if (!val) { setInvalid(mobileInput, mobileOk, mobileError, "Mobile is required."); return false; }
+      if (!re.test(val)) { setInvalid(mobileInput, mobileOk, mobileError, "Enter 10 digits, starting with 6-9."); return false; }
+      setValid(mobileInput, mobileOk, mobileError); return true;
+    }
+
+    function validateCgpa() {
+      const val = cgpaInput.value;
+      if (val === '' || val === null) { setInvalid(cgpaInput, cgpaOk, cgpaError, "CGPA is required."); return false; }
+      const num = parseFloat(val);
+      if (isNaN(num) || num < 0 || num > 10) { setInvalid(cgpaInput, cgpaOk, cgpaError, "CGPA must be between 0.00 and 10.00."); return false; }
+      // optional: limit decimals to 2
+      const decimals = (val.split('.')[1] || '').length;
+      if (decimals > 2) { setInvalid(cgpaInput, cgpaOk, cgpaError, "Max 2 decimal places allowed."); return false; }
+      setValid(cgpaInput, cgpaOk, cgpaError); return true;
+    }
+
+    function validateEmail() {
+      const val = emailInput.value.trim();
+      if (!val) { setInvalid(emailInput, emailOk, emailError, "Email is required."); return false; }
+      // rely on browser's built-in email format check as well as a simple regex
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!re.test(val)) { setInvalid(emailInput, emailOk, emailError, "Enter a valid email address."); return false; }
+      setValid(emailInput, emailOk, emailError); return true;
+    }
+
+    // Add live validation
+    nameInput.addEventListener('input', validateName);
+    mobileInput.addEventListener('input', () => {
+      // restrict to digits only while typing
+      mobileInput.value = mobileInput.value.replace(/\D/g, '').slice(0, 10);
+      validateMobile();
+    });
+    cgpaInput.addEventListener('input', () => {
+      // allow valid numeric input (max 2 decimals)
+      const v = cgpaInput.value;
+      // optional sanitize: allow digits and dot
+      cgpaInput.value = v.replace(/[^\d.]/g, '');
+      validateCgpa();
+    });
+    emailInput.addEventListener('input', validateEmail);
+
+    // On submit
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      submitMsg.textContent = '';
+      const okName = validateName();
+      const okMobile = validateMobile();
+      const okCgpa = validateCgpa();
+      const okEmail = validateEmail();
+
+      if (okName && okMobile && okCgpa && okEmail) {
+        // All good — normally you would send data to server here (fetch / xhr)
+        const data = {
+          name: nameInput.value.trim(),
+          mobile: mobileInput.value.trim(),
+          cgpa: parseFloat(cgpaInput.value),
+          email: emailInput.value.trim()
+        };
+        submitMsg.style.color = '#065f46';
+        submitMsg.textContent = 'Form is valid — ready to submit. (See console for collected data)';
+        console.log('Form data:', data);
+
+        // Example: simulate send then reset
+        // form.reset(); // if you want to clear the form after submit
+        // Reset visual states optionally:
+        // [nameInput, mobileInput, cgpaInput, emailInput].forEach(i => i.classList.remove('valid'));
+      } else {
+        submitMsg.style.color = '#991b1b';
+        submitMsg.textContent = 'Please fix the highlighted errors and submit again.';
+      }
+    });
+  </script>
+
+</body>
+</html>
